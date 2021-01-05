@@ -2,14 +2,21 @@
 
 
 ### Load Packages
-library(tidyverse)
-library(GeoexperimentsResearch)
-library (anomalize) #anomaly id functions
+library(tidyverse) # data wrangling
+library(GeoexperimentsResearch) # core geo experiment models
+library (anomalize) # anomaly id functions
 
+
+### Input Variables
+csv.geo <- paste0(getwd(), "/geoassignment.csv") # file name of the geo assignments data set
+csv.sc <- paste0(getwd(), "/salesandcost.csv") # file name of the sales and cost by date and geo data set
+date.pre <- "2015-01-05" # set pre-wave start date from the data set
+date.test <- "2015-02-16" # experiment start date
+date.post <- "2015-03-15" # start of post-period
+date.end <- "2015-04-07" # end of post
+  
 
 ### Load Data
-csv.geo <- paste0(getwd(), "/geoassignment.csv")
-csv.sc <- paste0(getwd(), "/salesandcost.csv")
 geoassignment <- read.csv (file = csv.geo, 
                            colClasses = c(geo="character", geo.group="integer"))
 
@@ -27,12 +34,13 @@ plot_anomaly_decomposition(geosalestrendanom) #more detailed plot including unde
 
 ### Set Experiment Dates 
 periods = ExperimentPeriods(
-  period.dates = c("2015-01-05", "2015-02-16", "2015-03-15", "2015-04-07"), 
-  period.names = c("PreTest", "Test", "Cooldown")) # dates in order: pre-wave start, experiment start, cooldown start, experiment end)
+  period.dates = c(date.pre, date.test, date.post, date.end), 
+  period.names = c("PreTest", "Test", "Cooldown"))
 
-### Combine Inputs and Timeseries Data
+
+### Combine Inputs and Time-series Data
 data = GeoExperimentData(GeoTimeseries(salesandcost, metrics=c("sales", "cost")), periods=periods, geo.assignment=GeoAssignment(geoassignment))
-view(aggregate(data, by=c('period', 'geo.group'))) #check that sales and spend observations are in the groups and timeperiods expected
+view(aggregate(data, by=c('period', 'geo.group'))) # check that sales and spend observations are in the groups and time-periods expected
 
 
 ### Valuation Functions (GBR and TBR)
